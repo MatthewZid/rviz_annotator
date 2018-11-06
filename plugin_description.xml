@@ -1,0 +1,23 @@
+<library path="lib/librviz_annotator">
+  <class name="rviz_annotator/RosbagPlayer"
+         type="rviz_annotator::RvizCntrlPanel"
+         base_class_type="rviz::Panel">
+    <description>
+      A panel widget allowing rosbag player control.
+    </description>
+  </class>
+  <class name="rviz_annotator/Annotation"
+         type="rviz_annotator::AnnotationPanel"
+         base_class_type="rviz::Panel">
+    <description>
+      A panel widget allowing Point Cloud annotation.
+    </description>
+  </class>
+  <class name="rviz_annotator/PointSelect"
+         type="rviz_annotator::PointSelector"
+         base_class_type="rviz::Tool">
+    <description>
+      Tool for selecting Point Cloud.
+    </description>
+  </class>
+</library>
