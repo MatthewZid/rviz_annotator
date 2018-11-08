@@ -1,0 +1,7 @@
+sel_topic: "rviz_annotator/selection_topic"
+marker_array_topic: "visualization_marker_array"
+csv_name: "annotation.csv"
+csv_dir: "Ros_WS"
+bagfiles_dir: "Ros_WS/bagfiles"
+pc_segments_topic: "pointcloud2_cluster_tracking/clusters"
+pc2_topic: "pointcloud2_segments_viz/pc2_viz"
