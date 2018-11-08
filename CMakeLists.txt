@@ -115,7 +115,7 @@ target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES} pclass
 ## The recommended prefix ensures that target names across packages don't collide
 
 add_executable(exportBag src/export_bag.cpp)
-target_link_libraries(exportBag ${catkin_LIBRARIES} pclass)
+target_link_libraries(exportBag ${catkin_LIBRARIES} pclass yaml-cpp)
 
 #add_executable(stop_display src/stop_display.cpp)
 #target_link_libraries(stop_display ${catkin_LIBRARIES}  ${QT_LIBRARIES} ${OGRE_LIBRARIES})

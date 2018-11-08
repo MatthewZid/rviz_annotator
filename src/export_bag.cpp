@@ -9,6 +9,7 @@
 
 #include <pcl_ros/point_cloud.h>
 #include <ros/package.h>
+#include <yaml-cpp/yaml.h>
 
 namespace rosbag
 {
@@ -35,13 +36,7 @@ int main(int argc, char **argv)
 	std::string input_bagname = argv[1];
 	std::string output_bagname = "annotated_" + input_bagname;
 
-	QString bagfiles_dir;
-	QString pc_segments_topic;
-	QString pc2_topic;
-
-	rviz::Config config;
-	rviz::YamlConfigReader conf_reader;
-
+	//read YAML
 	std::string pkg_path = ros::package::getPath("rviz_annotator");
 
 	if(pkg_path == "")
@@ -52,10 +47,11 @@ int main(int argc, char **argv)
 
 	std::string param_path = pkg_path + "/config/plugin_params.yaml";
 
-	conf_reader.readFile(config, QString(param_path.c_str()));
-	config.mapGetString("bagfiles_dir", &bagfiles_dir);
-	config.mapGetString("pc_segments_topic", &pc_segments_topic);
-	config.mapGetString("pc2_topic", &pc2_topic);
+	YAML::Node config = YAML::LoadFile(param_path);
+
+	const std::string bagfiles_dir = config["bagfiles_dir"].as<std::string>();
+	const std::string pc_segments_topic = config["pc_segments_topic"].as<std::string>();
+	const std::string pc2_topic = config["pc2_topic"].as<std::string>();
 
 	//read csv file
 	std::vector<rviz_annotator::PointClass> cluster = rviz_annotator::readcsv();
