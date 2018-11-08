@@ -3,6 +3,7 @@
 
 #ifndef Q_MOC_RUN
 # include <ros/ros.h>
+#include <ros/package.h>
 #include <geometry_msgs/Point32.h>
 #include <rviz_annotator/PointSelection.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -27,6 +28,7 @@
 #include <rviz_annotator/edit_widget.h>
 
 #include <rviz_annotator/point_class.h>
+#include <rviz/yaml_config_reader.h>
 #endif
 
 class QLineEdit;
@@ -37,34 +39,17 @@ void updateMarkers();
 
 namespace rviz_annotator
 {
-// BEGIN_TUTORIAL
-// Here we declare our new subclass of rviz::Panel.  Every panel which
-// can be added via the Panels/Add_New_Panel menu is a subclass of
-// rviz::Panel.
-//
-// TeleopPanel will show a text-entry field to set the output topic
-// and a 2D control area.  The 2D control area is implemented by the
-// DriveWidget class, and is described there.
+
 class AnnotationPanel: public rviz::Panel
 {
 // This class uses Qt slots and is a subclass of QObject, so it needs
 // the Q_OBJECT macro.
 Q_OBJECT
 public:
-  // QWidget subclass constructors usually take a parent widget
-  // parameter (which usually defaults to 0).  At the same time,
-  // pluginlib::ClassLoader creates instances by calling the default
-  // constructor (with no arguments).  Taking the parameter and giving
-  // a default of 0 lets the default constructor work and also lets
-  // someone using the class for something else to pass in a parent
-  // widget as they normally would with Qt.
   AnnotationPanel( QWidget* parent = 0 );
 
   virtual void onInitialize();
 
-  // Now we declare overrides of rviz::Panel functions for saving and
-  // loading data from the config file.  Here the data is the
-  // topic name.
    virtual void load( const rviz::Config& config );
    virtual void save( rviz::Config config ) const;
 
@@ -86,6 +71,12 @@ private:
   void createNameList();
   void divideAction();
 
+  //params
+  QString sel_topic;
+  QString marker_array_topic;
+  QString csv_name;
+  QString csv_dir;
+
   // Then we finish up with protected member variables.
 protected:
   QPushButton *cluster_name_btn;
@@ -102,9 +93,8 @@ protected:
   ros::Subscriber viz_sub;
 
   int button_id;
-  // END_TUTORIAL
 };
 
-} // end namespace rviz_plugin_tutorials
+} // end namespace
 
 #endif // TELEOP_PANEL_H

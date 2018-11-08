@@ -783,15 +783,6 @@ int Player::doPublish(rosbag::MessageInstance const& m)
     time_publisher_.insertPassedTime(m.getTime(), horizon, m, callerid_topic);
     time_translator_.insertPassedTrStart();
 
-/////////////////// Copy this to signal handler!!! /////////////////////
-
-/*if(m.isType<sensor_msgs::PointCloud2>()){
-    boost::shared_ptr<sensor_msgs::PointCloud2> kourada = m.instantiate<sensor_msgs::PointCloud2>();
-    std::cout << "Player: " << std::fixed << std::setprecision(10) << kourada->header.stamp.toSec() << std::endl;
-}*/
-
-/////////////////// Copy this to signal handler!!! /////////////////////
-
     pub_iter->second.publish(m);
 
     return 0;
@@ -815,14 +806,12 @@ void Player::doKeepAlive()
     // If we're done and just staying alive, don't watch the rate control topic. We aren't publishing anyway.
     delayed_ = false;
 
-    while ((paused_ or !time_publisher_.horizonReached()) and node_handle_.ok())
+    while ((paused_ or !time_publisher_.horizonReached()) and !terminate_ and node_handle_.ok())
     {
         bool charsleftorpaused = true;
-        while (charsleftorpaused and node_handle_.ok())
+        while (charsleftorpaused and !terminate_ and node_handle_.ok())
         {
-            //terminal input while player running
-            //replace this segment with rviz panel input
-            /*switch (readCharFromStdin()){
+            switch (choice_){
             case ' ':
                 paused_ = !paused_;
                 if (paused_) {
@@ -839,8 +828,12 @@ void Player::doKeepAlive()
                     horizon += shift;
                     time_publisher_.setWCHorizon(horizon);
                 }
+
+                lock_choice_.lock();
+                choice_ = '-';
+                lock_choice_.unlock();
                 break;
-            case EOF:
+            default:
                 if (paused_)
                 {
                     printTime();
@@ -849,7 +842,7 @@ void Player::doKeepAlive()
                 }
                 else
                     charsleftorpaused = false;
-            }*/
+            }
             charsleftorpaused = false;  //remove this line if above section is back
         }
 

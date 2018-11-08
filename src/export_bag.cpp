@@ -8,6 +8,7 @@
 #include <fstream>
 
 #include <pcl_ros/point_cloud.h>
+#include <ros/package.h>
 
 namespace rosbag
 {
@@ -34,13 +35,36 @@ int main(int argc, char **argv)
 	std::string input_bagname = argv[1];
 	std::string output_bagname = "annotated_" + input_bagname;
 
+	QString bagfiles_dir;
+	QString pc_segments_topic;
+	QString pc2_topic;
+
+	rviz::Config config;
+	rviz::YamlConfigReader conf_reader;
+
+	std::string pkg_path = ros::package::getPath("rviz_annotator");
+
+	if(pkg_path == "")
+	{
+	ROS_FATAL("Could not find package!\nPackage must be named rviz_annotator");
+	ros::shutdown();
+	}
+
+	std::string param_path = pkg_path + "/config/plugin_params.yaml";
+
+	conf_reader.readFile(config, QString(param_path.c_str()));
+	config.mapGetString("bagfiles_dir", &bagfiles_dir);
+	config.mapGetString("pc_segments_topic", &pc_segments_topic);
+	config.mapGetString("pc2_topic", &pc2_topic);
+
 	//read csv file
 	std::vector<rviz_annotator::PointClass> cluster = rviz_annotator::readcsv();
 
     //open input bagfile
 	try
 	{
-		std::string bagpath = homepath + "/Ros_WS/bagfiles/" + input_bagname;
+		//std::string bagpath = homepath + "/Ros_WS/bagfiles/" + input_bagname;
+		std::string bagpath = homepath + "/" + bagfiles_dir + "/" + input_bagname;
 		input_bag.open(bagpath);
 	}
 	catch (rosbag::BagUnindexedException ex) {
@@ -51,7 +75,7 @@ int main(int argc, char **argv)
     //open output bagfile
     try
 	{
-		std::string bagpath = homepath + "/Ros_WS/bagfiles/" + output_bagname;
+		std::string bagpath = homepath + "/" + bagfiles_dir + "/" + output_bagname;
 		output_bag.open(bagpath, rosbag::bagmode::Write);
 	}
 	catch (rosbag::BagUnindexedException ex) {
@@ -82,7 +106,7 @@ int main(int argc, char **argv)
 
 	for(rosbag::MessageInstance m : bag_view)
 	{
-		if(!m.isType<pointcloud_msgs::PointCloud2_Segments>() or m.getTopic() != "/pointcloud2_cluster_tracking/clusters")
+		if(!m.isType<pointcloud_msgs::PointCloud2_Segments>() or m.getTopic() != ("/" + pc_segments_topic))
 			continue;
 
 		boost::shared_ptr<pointcloud_msgs::PointCloud2_Segments> pcs_msg = m.instantiate<pointcloud_msgs::PointCloud2_Segments>();
@@ -142,8 +166,8 @@ int main(int argc, char **argv)
 	//write messages to output bagfile, consulting csv annotations
 	for(rosbag::MessageInstance m : bag_view)
 	{
-		if(!m.isType<pointcloud_msgs::PointCloud2_Segments>() or m.getTopic() != "/pointcloud2_cluster_tracking/clusters"){
-			if(m.isType<sensor_msgs::PointCloud2>() and m.getTopic() == "/pointcloud2_segments_viz/pc2_viz")
+		if(!m.isType<pointcloud_msgs::PointCloud2_Segments>() or m.getTopic() != ("/" + pc_segments_topic)){
+			if(m.isType<sensor_msgs::PointCloud2>() and m.getTopic() == ("/" + pc2_topic))
 			{
 				if(!found)
 				{

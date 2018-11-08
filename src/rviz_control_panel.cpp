@@ -33,24 +33,29 @@ void runPlayer()
 namespace rviz_annotator
 {
 
-// BEGIN_TUTORIAL
-// Here is the implementation of the TeleopPanel class.  TeleopPanel
-// has these responsibilities:
-//
-// - Act as a container for GUI elements DriveWidget and QLineEdit.
-// - Publish command velocities 10 times per second (whether 0 or not).
-// - Saving and restoring internal state from a config file.
-//
-// We start with the constructor, doing the standard Qt thing of
-// passing the optional *parent* argument on to the superclass
-// constructor, and also zero-ing the velocities we will be
-// publishing.
 RvizCntrlPanel::RvizCntrlPanel( QWidget* parent )
   : rviz::Panel( parent )
 {
+  rviz::Config config;
+  rviz::YamlConfigReader conf_reader;
+
+  std::string pkg_path = ros::package::getPath("rviz_annotator");
+
+  if(pkg_path == "")
+  {
+    ROS_FATAL("Could not find package!\nPackage must be named rviz_annotator");
+    ros::shutdown();
+  }
+
+  std::string param_path = pkg_path + "/config/plugin_params.yaml";
+
+  conf_reader.readFile(config, QString(param_path.c_str()));
+  config.mapGetString("bagfiles_dir", &bagfiles_dir);
+
   //default bagfile directory
   std::string homepath = std::getenv("HOME");
-  bag_path = QString::fromStdString(homepath) + "/Ros_WS/bagfiles";
+  //bag_path = QString::fromStdString(homepath) + "/Ros_WS/bagfiles";
+  bag_path = QString::fromStdString(homepath) + "/" + bagfiles_dir;
 
   bagpath_file_count = findBagfiles();
 
@@ -66,8 +71,7 @@ RvizCntrlPanel::RvizCntrlPanel( QWidget* parent )
   rosbag_player = new rviz_rosbag::Player(*options);
   paused_ = false;
 
-  // Next we lay out the "output topic" text entry field using a
-  // QLabel and a QLineEdit in a QHBoxLayout.
+  //Set GUI
   QGroupBox* rosbag_group = new QGroupBox("Rosbag player");
 
   QHBoxLayout* filediag_layout = new QHBoxLayout;
@@ -127,9 +131,6 @@ RvizCntrlPanel::RvizCntrlPanel( QWidget* parent )
   check_boxes->addWidget(sync_topics_checkbox);
   check_boxes->addWidget(clock_checkbox);
 
-  // Then create the control widget.
-  //q_widget_ = new RvizQWidget;
-
   // Lay out the topic field above the control widget.
   QVBoxLayout* rosbag_layout = new QVBoxLayout;
   rosbag_layout->setSpacing(VSPACING);
@@ -145,19 +146,8 @@ RvizCntrlPanel::RvizCntrlPanel( QWidget* parent )
   QVBoxLayout* layout = new QVBoxLayout;
   layout->setSpacing(VSPACING);
   layout->addWidget(rosbag_group);
-  //rosbag_layout->addWidget( q_widget_ );
+  
   setLayout( layout );
-
-  // Create a timer for sending the output.  Motor controllers want to
-  // be reassured frequently that they are doing the right thing, so
-  // we keep re-sending velocities even when they aren't changing.
-  // 
-  // Here we take advantage of QObject's memory management behavior:
-  // since "this" is passed to the new QTimer as its parent, the
-  // QTimer is deleted by the QObject destructor when this RvizCntrlPanel
-  // object is destroyed.  Therefore we don't need to keep a pointer
-  // to the timer.
-  //QTimer* output_timer = new QTimer( this );
 
   // Next we make signal/slot connections.
   //connect(bagmenu, QOverload<int>::of(&QComboBox::activated), [=](int index){bagSelect(index);});
@@ -177,15 +167,6 @@ RvizCntrlPanel::RvizCntrlPanel( QWidget* parent )
   connect(quiet_checkbox, SIGNAL(stateChanged(int)), this, SLOT(quietCheckbox()));
   connect(sync_topics_checkbox, SIGNAL(stateChanged(int)), this, SLOT(syncCheckbox()));
   connect(clock_checkbox, SIGNAL(stateChanged(int)), this, SLOT(clockCheckbox()));
-  //QObject::connect( q_widget_, SIGNAL( outputVelocity( float, float )), this, SLOT( setVel( float, float )));
-  //connect( rosbag_player_input_, SIGNAL( editingFinished() ), this, SLOT( updateChoice() ));
-  //QObject::connect( output_timer, SIGNAL( timeout() ), this, SLOT( sendVel() ));
-
-  // Start the timer.
-  //output_timer->start( 100 );
-
-  // Make the control widget start disabled, since we don't start with an output topic.
-  //q_widget_->setEnabled( false );
 }
 
 RvizCntrlPanel::~RvizCntrlPanel()

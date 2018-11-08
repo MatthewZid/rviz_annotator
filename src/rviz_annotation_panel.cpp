@@ -296,11 +296,30 @@ AnnotationPanel::AnnotationPanel( QWidget* parent )
 void AnnotationPanel::onInitialize()
 {
 	//ROS handling setup
-  	selection_sub = nh.subscribe("rviz_annotator/selection_topic", 1, selectionCallback);
-  	marker_pub = nh.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
+  rviz::Config config;
+  rviz::YamlConfigReader conf_reader;
 
-  	createTopicList();
-  	createNameList();
+  std::string pkg_path = ros::package::getPath("rviz_annotator");
+
+  if(pkg_path == "")
+  {
+    ROS_FATAL("Could not find package!\nPackage must be named rviz_annotator");
+    ros::shutdown();
+  }
+
+  std::string param_path = pkg_path + "/config/plugin_params.yaml";
+
+  conf_reader.readFile(config, QString(param_path.c_str()));
+  config.mapGetString("sel_topic", &sel_topic);
+  config.mapGetString("marker_array_topic", &marker_array_topic);
+  config.mapGetString("csv_name", &csv_name);
+  config.mapGetString("csv_dir", &csv_dir);
+
+  selection_sub = nh.subscribe(sel_topic.toStdString(), 1, selectionCallback);
+  marker_pub = nh.advertise<visualization_msgs::MarkerArray>(marker_array_topic.toStdString(), 1);
+
+  createTopicList();
+  createNameList();
 }
 
 void AnnotationPanel::topicSelect(const QString& txt)
@@ -515,8 +534,8 @@ void AnnotationPanel::save( rviz::Config config ) const
     return;
 
   std::string homepath = std::getenv("HOME");
-  std::string filename = "annotation.csv";
-  std::string csv_path = homepath + "/Ros_WS/" + filename;
+  std::string filename = csv_name.toStdString();
+  std::string csv_path = homepath + "/" + csv_dir.toStdString() + "/" + filename;
 
   std::ofstream csvfile;
   csvfile.open(csv_path, std::ios::out | std::ios::trunc);
@@ -576,7 +595,7 @@ void AnnotationPanel::load( const rviz::Config& config )
   custom_cluster = readcsv();
 }
 
-} // end namespace rviz_plugin_tutorials
+} // end namespace
 
 // Tell pluginlib about this class.  Every class which should be
 // loadable by pluginlib::ClassLoader must have these two lines

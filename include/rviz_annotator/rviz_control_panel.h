@@ -7,6 +7,7 @@
 #define BAGPATH "/home/mzidianakis/Ros_WS/bagfiles/"
 
 # include <ros/ros.h>
+#include <ros/package.h>
 
 # include <rviz/panel.h>
 
@@ -34,6 +35,7 @@
 #include <rviz_annotator/rviz_rosbag_player.h>
 
 #include <boost/filesystem.hpp>
+#include <rviz/yaml_config_reader.h>
 #endif
 
 namespace fs = boost::filesystem;
@@ -53,27 +55,12 @@ void runPlayer();
 namespace rviz_annotator
 {
 
-// BEGIN_TUTORIAL
-// Here we declare our new subclass of rviz::Panel.  Every panel which
-// can be added via the Panels/Add_New_Panel menu is a subclass of
-// rviz::Panel.
-//
-// TeleopPanel will show a text-entry field to set the output topic
-// and a 2D control area.  The 2D control area is implemented by the
-// DriveWidget class, and is described there.
 class RvizCntrlPanel: public rviz::Panel
 {
 // This class uses Qt slots and is a subclass of QObject, so it needs
 // the Q_OBJECT macro.
 Q_OBJECT
 public:
-  // QWidget subclass constructors usually take a parent widget
-  // parameter (which usually defaults to 0).  At the same time,
-  // pluginlib::ClassLoader creates instances by calling the default
-  // constructor (with no arguments).  Taking the parameter and giving
-  // a default of 0 lets the default constructor work and also lets
-  // someone using the class for something else to pass in a parent
-  // widget as they normally would with Qt.
   RvizCntrlPanel( QWidget* parent = 0 );
   ~RvizCntrlPanel();
 
@@ -102,6 +89,8 @@ private Q_SLOTS:
 
 private:
   int findBagfiles();
+
+  QString bagfiles_dir;
 
   // Then we finish up with protected member variables.
 protected:

@@ -17,7 +17,8 @@
 #include <OGRE/OgreManualObject.h>
 #include <OGRE/OgreRenderOperation.h>
 
-//#include <ros/console.h>
+#include <ros/ros.h>
+#include <ros/package.h>
 
 #include <rviz/viewport_mouse_event.h>
 #include <rviz/visualization_manager.h>
@@ -34,6 +35,7 @@
 #include <pointcloud_msgs/PointCloud2_Segments.h>
 
 #include <cstdlib>
+#include <rviz/yaml_config_reader.h>
 #endif
 
 namespace Ogre
@@ -76,6 +78,10 @@ private:
   bool selecting_;
   int sel_start_x_;
   int sel_start_y_;
+
+  //params
+  QString sel_topic;
+  QString pc_segments_topic;
 };
 
 } // end namespace
