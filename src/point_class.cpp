@@ -7,9 +7,24 @@ std::vector<PointClass> readcsv()
 {
 	std::vector<PointClass> cc;
 
-	std::string homepath = std::getenv("HOME");
+	//read YAML
+	std::string pkg_path = ros::package::getPath("rviz_annotator");
+
+	if(pkg_path == "")
+	{
+		ROS_FATAL("Could not find package!\nPackage must be named rviz_annotator");
+		ros::shutdown();
+	}
+
+	std::string param_path = pkg_path + "/config/plugin_params.yaml";
+
+	YAML::Node config = YAML::LoadFile(param_path);
+
+	const std::string csv_dir = config["csv_dir"].as<std::string>();
+
+	//std::string homepath = std::getenv("HOME");
 	std::string filename = "annotation.csv";
-	std::string csv_path = homepath + "/Ros_WS/" + filename;
+	std::string csv_path = csv_dir + "/" + filename;
 
 	std::ifstream csvfile(csv_path);
 
@@ -112,7 +127,7 @@ std::vector<PointClass> readcsv()
 	return cc;
 }
 
-size_t binarySearch(const std::vector<PointClass>& pcvec, size_t l, size_t r, const ros::Time x)
+/*size_t binarySearch(const std::vector<PointClass>& pcvec, size_t l, size_t r, const ros::Time x)
 {
 	if(l <= r)
 	{
@@ -133,6 +148,6 @@ size_t binarySearch(const std::vector<PointClass>& pcvec, size_t l, size_t r, co
 size_t cluster_search(const std::vector<PointClass>& pcvec, const ros::Time x)
 {
 	return binarySearch(pcvec, 0, pcvec.size()-1, x);
-}
+}*/
 
 } // end namespace

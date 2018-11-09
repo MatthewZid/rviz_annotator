@@ -9,7 +9,8 @@ std::string msg_frame;
 ros::Time msg_stamp;
 ros::Time segment_stamp;
 
-int marker_id = 0;
+//int marker_id = 0;
+std::map<std::string, int> color_map;
 int text_marker_id = 0;
 
 ros::Publisher marker_pub;
@@ -90,8 +91,25 @@ void insertMarker(const std::vector<geometry_msgs::Point32>& points_vec, const s
   marker.header.frame_id = msg_frame;
   marker.header.stamp = msg_stamp;
 
-  marker.ns = "class";
-  marker.id = marker_id++;
+  //find class
+  auto it = color_map.find(cl_name);
+  int marker_id;
+  size_t marker_class_size;
+
+  if(it == color_map.end()){
+    color_map.insert(std::make_pair(cl_name, 0));
+    marker_id = 0;
+    marker_class_size = color_map.size();
+  }
+  else{
+    marker_id = it->second;
+    marker_id++;
+    color_map[cl_name] = marker_id;
+    marker_class_size = std::distance(color_map.begin(), it) + 1;
+  }
+
+  marker.ns = cl_name;
+  marker.id = marker_id;
   marker.type = shape;
   marker.action = visualization_msgs::Marker::ADD;
 
@@ -116,21 +134,21 @@ void insertMarker(const std::vector<geometry_msgs::Point32>& points_vec, const s
   if(marker.scale.z == 0.0)
   	marker.scale.z = 0.1;
 
-  int color_class = marker_id % 3;
+  int color_class = marker_class_size % 3;
 
   if(color_class == 0){
     marker.color.r = 1.0f;
-    marker.color.g = marker_id % 255;
-    marker.color.b = marker_id % 255;
+    marker.color.g = marker_class_size % 255;
+    marker.color.b = marker_class_size % 255;
   }
   if(color_class == 1){
-    marker.color.r = marker_id % 255;
+    marker.color.r = marker_class_size % 255;
     marker.color.g = 1.0f;
-    marker.color.b = marker_id % 255;
+    marker.color.b = marker_class_size % 255;
   }
   if(color_class == 2){
-    marker.color.r = marker_id % 255;
-    marker.color.g = marker_id % 255;
+    marker.color.r = marker_class_size % 255;
+    marker.color.g = marker_class_size % 255;
     marker.color.b = 1.0f;
   }
 
@@ -196,7 +214,8 @@ void updateMarkers()
 {
   publishDeleteMarker();
 
-  marker_id = text_marker_id = 0;
+  color_map.clear();
+  text_marker_id = 0;
 
   for(int i=0; i < custom_cluster.size(); i++)
   {
@@ -314,11 +333,15 @@ void AnnotationPanel::onInitialize()
   config.mapGetString("marker_array_topic", &marker_array_topic);
   config.mapGetString("csv_name", &csv_name);
   config.mapGetString("csv_dir", &csv_dir);
+  config.mapGetString("pc2_topic", &pc2_topic);
 
   selection_sub = nh.subscribe(sel_topic.toStdString(), 1, selectionCallback);
   marker_pub = nh.advertise<visualization_msgs::MarkerArray>(marker_array_topic.toStdString(), 1);
 
-  createTopicList();
+  cluster_topic_list->addItem(pc2_topic);
+  cluster_topic_list->setCurrentIndex(0);
+
+  //createTopicList();
   createNameList();
 }
 
@@ -533,9 +556,9 @@ void AnnotationPanel::save( rviz::Config config ) const
   if(custom_cluster.empty())
     return;
 
-  std::string homepath = std::getenv("HOME");
+  //std::string homepath = std::getenv("HOME");
   std::string filename = csv_name.toStdString();
-  std::string csv_path = homepath + "/" + csv_dir.toStdString() + "/" + filename;
+  std::string csv_path = csv_dir.toStdString() + "/" + filename;
 
   std::ofstream csvfile;
   csvfile.open(csv_path, std::ios::out | std::ios::trunc);

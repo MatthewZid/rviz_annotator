@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 	rosbag::Bag input_bag;
 	rosbag::Bag output_bag;
 
-	std::string homepath = std::getenv("HOME");
+	//std::string homepath = std::getenv("HOME");
 	std::string input_bagname = argv[1];
 	std::string output_bagname = "annotated_" + input_bagname;
 
@@ -41,8 +41,8 @@ int main(int argc, char **argv)
 
 	if(pkg_path == "")
 	{
-	ROS_FATAL("Could not find package!\nPackage must be named rviz_annotator");
-	ros::shutdown();
+		ROS_FATAL("Could not find package!\nPackage must be named rviz_annotator");
+		ros::shutdown();
 	}
 
 	std::string param_path = pkg_path + "/config/plugin_params.yaml";
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 	try
 	{
 		//std::string bagpath = homepath + "/Ros_WS/bagfiles/" + input_bagname;
-		std::string bagpath = homepath + "/" + bagfiles_dir + "/" + input_bagname;
+		std::string bagpath = bagfiles_dir + "/" + input_bagname;
 		input_bag.open(bagpath);
 	}
 	catch (rosbag::BagUnindexedException ex) {
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     //open output bagfile
     try
 	{
-		std::string bagpath = homepath + "/" + bagfiles_dir + "/" + output_bagname;
+		std::string bagpath = bagfiles_dir + "/" + output_bagname;
 		output_bag.open(bagpath, rosbag::bagmode::Write);
 	}
 	catch (rosbag::BagUnindexedException ex) {

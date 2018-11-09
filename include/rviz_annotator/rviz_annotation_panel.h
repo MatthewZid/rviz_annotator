@@ -76,6 +76,7 @@ private:
   QString marker_array_topic;
   QString csv_name;
   QString csv_dir;
+  QString pc2_topic;
 
   // Then we finish up with protected member variables.
 protected:

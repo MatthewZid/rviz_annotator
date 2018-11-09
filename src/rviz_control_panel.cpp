@@ -53,9 +53,9 @@ RvizCntrlPanel::RvizCntrlPanel( QWidget* parent )
   config.mapGetString("bagfiles_dir", &bagfiles_dir);
 
   //default bagfile directory
-  std::string homepath = std::getenv("HOME");
+  //std::string homepath = std::getenv("HOME");
   //bag_path = QString::fromStdString(homepath) + "/Ros_WS/bagfiles";
-  bag_path = QString::fromStdString(homepath) + "/" + bagfiles_dir;
+  bag_path = bagfiles_dir;
 
   bagpath_file_count = findBagfiles();
 
