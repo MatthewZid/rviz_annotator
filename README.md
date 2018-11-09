@@ -4,7 +4,16 @@
 Rviz Annotator is a ROS package that integrates [rosbag](https://github.com/ros/ros_comm/tree/kinetic-devel/tools/rosbag) player into rviz plugins for playing and annotating recorded PointCloud2 messages. The user can select points displayed in rviz for manual object clusters naming and export a new .bag file. It contains three rviz plugins:
 * Rosbag player
 * Annotation panel
-* PointCloud2 selection tool (using PointCloud2_Segments messages)
+* PointCloud2 selection tool (using [PointCloud2_Segments](https://github.com/roboskel/pointcloud_msgs) messages)
+
+### Dependencies
+
+The following ROS packages are used for recording their output:
+* [Lasersacn Stacker](https://github.com/roboskel/laserscan_stacker)
+* [PointCloud2 Clustering](https://github.com/roboskel/pointcloud2_clustering)
+* [PointCloud2 Tracking](https://github.com/roboskel/pointcloud2_cluster_tracking)
+* [PointCloud2 Segments Viz](https://github.com/roboskel/pointcloud2_segments_viz)
+* [HPR](https://github.com/roboskel/hpr/tree/rel3)
 
 ### Compiling
 
@@ -35,7 +44,7 @@ Hit `Ctrl + S` to save annotated points to csv when done.
 
 ## Export
 
-Run `rosrun rviz_annotator expoertBag <initial_bagfile_name>` to export a new .bag file containing annotations.
+Run `rosrun rviz_annotator exportBag <initial_bagfile_name>` to export a new .bag file containing annotations.
 
 Each custom cluster in the new .bag has its own color. Clusters that have not been selected manually are displayed grayed out.
 
@@ -43,8 +52,10 @@ Each custom cluster in the new .bag has its own color. Clusters that have not be
 
 Rosbag player has backwards step as an extra feature, but does not support all the original player features.
 
-`SyncTopics` option of the player must be checked always before performing Backstep.
+`SyncTopics` option of the player must be checked always before performing Backstep and Step ( `<<` and `>>` ).
 
-The format of directory parameters must be `path/to/file` (no `/` on the beginning and end).
+The name of the package ( `rviz_annotator` ) should not be changed, because it causes run-time errors.
 
-Currently only C++11 compiler is supported.
+The format of directory parameters must be `path/to/file` and `topic/name` for topic parameters (no `/` on the end).
+
+Currently only C++11 compiler is supported. Tested on `ros-kinetic` version.
