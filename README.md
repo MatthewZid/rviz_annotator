@@ -46,3 +46,5 @@ Rosbag player has backwards step as an extra feature, but does not support all t
 `SyncTopics` option of the player must be checked always before performing Backstep.
 
 The format of directory parameters must be `path/to/file` (no `/` on the beginning and end).
+
+Currently only C++11 compiler is supported.
