@@ -4,7 +4,7 @@
 Rviz Annotator is a ROS package that integrates [rosbag](https://github.com/ros/ros_comm/tree/kinetic-devel/tools/rosbag) player into rviz plugins for playing and annotating recorded PointCloud2 messages. The user can select points displayed in rviz for manual object clusters naming and export a new .bag file. It contains three rviz plugins:
 * Rosbag player
 * Annotation panel
-* PointCloud2 selection tool (using [PointCloud2_Segments](https://github.com/roboskel/pointcloud_msgs) messages)
+* PointCloud2 selection tool (using [PointCloud2_Segments](https://github.com/roboskel/pointcloud_msgs) custom messages)
 
 ### Dependencies
 
@@ -14,6 +14,8 @@ The following ROS packages are used for recording their output:
 * [PointCloud2 Tracking](https://github.com/roboskel/pointcloud2_cluster_tracking)
 * [PointCloud2 Segments Viz](https://github.com/roboskel/pointcloud2_segments_viz)
 * [HPR](https://github.com/roboskel/hpr/tree/rel3)
+
+`yaml-cpp` library is also needed for YAML support. (Normally it is pre-installed with ROS)
 
 ### Compiling
 
@@ -36,9 +38,12 @@ Build with `catkin_make install` under catkin workspace.
 
 ## Annotation
 
-Activate PointSelect tool to select points on a specific frame.
+Start player by pressing `Start`.<br>
+Activate PointSelect ( `s` key for shortcut) tool to select points on a specific frame, after pressing `Pause` button.
 
-Annotation panel shows selection status, depending on the initial clustering. Hit `Join` to create custom cluster or `Divide` to separate points from previous custom cluster. Type cluster name to set it and markers visualize the created clusters.
+Annotation panel shows selection status, depending on the initial clustering ( *Clean* for points that belong to the same cluster/object or *Dirty* for different clusters). Hit `Join` to create custom cluster or `Divide` to separate points from previous custom cluster. Type cluster name to set it and markers visualize the created clusters ( `MarkerArray` display should be active).
+
+Holding `<<` or `>>` down steps continuously backwards or forward while paused.
 
 Hit `Ctrl + S` to save annotated points to csv when done.
 
@@ -47,6 +52,11 @@ Hit `Ctrl + S` to save annotated points to csv when done.
 Run `rosrun rviz_annotator exportBag <initial_bagfile_name>` to export a new .bag file containing annotations.
 
 Each custom cluster in the new .bag has its own color. Clusters that have not been selected manually are displayed grayed out.
+
+## Known Issues
+
+The exporter node gives generated colors to annotated points and gray color to the rest for each frame.<br>
+It needs to take the original cluster id's into account retaining their color and adding the annotated points with new id's.
 
 ### Notes
 
